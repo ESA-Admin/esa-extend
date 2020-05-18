@@ -37,6 +37,7 @@ class File
         return file_put_contents($path,$body);
     }
     // 复制文件
+
     public static function copy_file($source,$target){}
     // 删除文件
     public static function delete_file($path){}
