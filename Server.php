@@ -8,7 +8,7 @@ use esa\Http;
  */
 class Server
 {
-    public static $base_url = "http://api.bug-maker.com/";
+    public static $base_url = "http://api.esaadmin.com/";
     
     // 拼接url
     public static function url($purl="Sys/get_version"){
