@@ -61,4 +61,5 @@ class Server
         ];
         return @json_decode(Http::get(self::url("sys/upgrade"),$data),true);
     }
+
 }
