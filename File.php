@@ -29,6 +29,30 @@ class File
         return $file_arr;
     }
     
+    // 获取文件夹内所有文件
+    public static function get_file($source_dir,$target=""){
+        $file_arr = array();
+        $dir = $source_dir.$target;
+        if(is_dir($dir)){
+            //打开
+            if($dh = @opendir($dir)){
+                //读取
+                while(($file = readdir($dh)) !== false){
+                    if($file != '.' && $file != '..'){
+                        if(is_dir($dir."/".$file)){
+                            $file_arr = array_merge($file_arr,self::get_file($source_dir,$target."/".$file));
+                        }else{
+                            $file_arr[] = $target."/".$file;
+                        }
+                    }
+                }
+                //关闭
+                closedir($dh);
+            }
+        }
+        return $file_arr;
+    }
+    
     // 计算文件数量
     public static function get_files_count($path){}
     
@@ -37,7 +61,6 @@ class File
         return file_put_contents($path,$body);
     }
     // 复制文件
-
     public static function copy_file($source,$target){}
     // 删除文件
     public static function delete_file($path){}
@@ -77,7 +100,36 @@ class File
     
     // 移动文件/文件加
     // 获取文件内容
+    
+    
     // 压缩
+    public static function zip_encode($path,$name,$save_path=__DIR__,$is_dir=false){
+        // dump($name);
+        $zip=new \ZipArchive();
+        $result = $zip->open($save_path . '/' . $name . ".zip", \ZipArchive::CREATE);
+        if($result !== true){
+            return false;
+        }
+        foreach(self::get_file($path) as $file){
+            $target = $is_dir ? $name.$file : $file;
+            $zip->addFile($path.$file,$target);
+        }
+        $zip->close();
+        return true;
+    }
     // 解压
+    public static function zip_decode($source,$target){
+        if(!is_file($source) || !is_dir($target)){
+            return false;
+        }
+        $zip=new \ZipArchive();
+        if ($zip->open($source) === true) {
+            $zip->extractTo($target);
+            $zip->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
     // 重命名
 }

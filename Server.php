@@ -8,11 +8,11 @@ use esa\Http;
  */
 class Server
 {
-    public static $base_url = "http://api.esaadmin.com/";
+    public static $base_url = "https://www.esaadmin.com/";
     
     // 拼接url
-    public static function url($purl="Sys/get_version"){
-        $url = ucfirst($purl);
+    public static function url($purl="user/login"){
+        $url = trim($purl);
         return self::$base_url.$url.".html";
     }
     
