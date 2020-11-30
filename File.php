@@ -10,6 +10,25 @@ class File
     // 检查文件名
     public static function check_file_name($path){}
     
+    // 文件夹对比存在哪些更新
+    public static function diff($source,$target){
+        $source_paths = File::get_file($source);
+        $target_paths = File::get_file($target);
+        // 寻找添加文件
+        $add_files = array_diff($target_paths,$source_paths);
+        // 寻找删除文件
+        $delete_files = array_diff($source_paths,$target_paths);
+        // 寻找修改文件/删除文件
+        $edit_files = [];
+        $eq_files = array_intersect($source_paths,$target_paths);
+        foreach($eq_files as $key => $value){
+            if(md5_file($source.$value) != md5_file($target.$value)){
+                $edit_files[] = $value;
+            }
+        }
+        return ["add"=>$add_files,"edit"=>$edit_files,"delete"=>$delete_files];
+    }
+    
     // 取文件/目录列表
     public static function get_dir($dir){
         $file_arr = array();
@@ -30,7 +49,7 @@ class File
     }
     
     // 获取文件夹内所有文件
-    public static function get_file($source_dir,$target=""){
+    public static function get_file($source_dir,$true_path=false,$target=""){
         $file_arr = array();
         $dir = $source_dir.$target;
         if(is_dir($dir)){
@@ -40,9 +59,9 @@ class File
                 while(($file = readdir($dh)) !== false){
                     if($file != '.' && $file != '..'){
                         if(is_dir($dir."/".$file)){
-                            $file_arr = array_merge($file_arr,self::get_file($source_dir,$target."/".$file));
+                            $file_arr = array_merge($file_arr,self::get_file($source_dir,$true_path,$target."/".$file));
                         }else{
-                            $file_arr[] = $target."/".$file;
+                            $file_arr[] = ($true_path ? $source_dir : "").$target."/".$file;
                         }
                     }
                 }
@@ -64,10 +83,28 @@ class File
     public static function copy_file($source,$target){}
     // 删除文件
     public static function delete_file($path){}
-    // 创建目录
-    public static function create_dir(){}
     // 复制目录
-    public static function copy_dir(){}
+    public static function copy_dir($source,$target,$retain=true,$cove=true){
+        // retain 是否保留源文件
+        // cove 是否符覆盖目标文件
+        $source_arr = File::get_file($source);
+        foreach($source_arr as $v){
+            $path_info = pathinfo($trage.$v);
+            if(!is_dir($path_info['dirname'])){
+                @mkdir($path_info['dirname']);
+            }
+            if(!$cove && is_file($target.$v)){
+                continue;
+            }
+            if(!@copy($source.$v,$target.$v)){
+                return false;
+            }
+            if(!$retain){
+                @unlink($srouce.$v);
+            }
+        }
+        return true;
+    }
     // 删除目录
     public static function delete_dir($path){
         if(is_dir($path)){
@@ -110,10 +147,21 @@ class File
         if($result !== true){
             return false;
         }
-        foreach(self::get_file($path) as $file){
-            $target = $is_dir ? $name.$file : $file;
-            $zip->addFile($path.$file,$target);
+        if(is_array($path)){
+            if(!isset($path['base']) || !isset($path['data'])){
+                return false;
+            }
+            foreach($path['data'] as $file){
+                $target = $is_dir ? $name.$file : $file;
+                $zip->addFile($path['base'].$file,$target);
+            }
+        }else{
+            foreach(self::get_file($path) as $file){
+                $target = $is_dir ? $name.$file : $file;
+                $zip->addFile($path.$file,$target);
+            }
         }
+        
         $zip->close();
         return true;
     }

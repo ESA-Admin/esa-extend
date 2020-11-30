@@ -182,4 +182,48 @@ class Http
             }
         }
     }
+    
+    public static function getFile($url, $save_dir = ROOT_PATH, $filename = 'test.zip', $type = 0) {
+        if (trim($url) == '') {
+            return false;
+        }
+        if (0 !== strrpos($save_dir, '/')) {
+            $save_dir.= '/';
+        }
+        //创建保存目录
+        if (!file_exists($save_dir) && !mkdir($save_dir, 0777, true)) {
+            return false;
+        }
+        
+        $ch = curl_init();
+        $timeout = 5;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        $content = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (false === $content || $code != 200) {
+            $errno = curl_errno($ch);
+            $info = curl_getinfo($ch);
+            curl_close($ch);
+            return [
+                'status'=> false,
+                'errno' => $code,
+            ];
+        }
+        curl_close($ch);
+        
+        $size = strlen($content);
+        //文件大小
+        $fp2 = @fopen($save_dir . $filename, 'a');
+        fwrite($fp2, $content);
+        fclose($fp2);
+        unset($content, $url);
+        return array(
+            'status'    => true,
+            'file_name' => $filename,
+            'path'      => $save_dir . $filename
+        );
+    }
 }
