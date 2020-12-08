@@ -80,7 +80,16 @@ class File
         return file_put_contents($path,$body);
     }
     // 复制文件
-    public static function copy_file($source,$target){}
+    public static function copy_file($source,$target){
+        if(!is_file($source)){
+            return false;
+        }
+        $target_path = pathinfo($target,PATHINFO_DIRNAME);
+        if(!is_dir($target_path)){
+            mkdir($target_path);
+        }
+        return copy($source,$target);
+    }
     // 删除文件
     public static function delete_file($path){}
     // 复制目录
@@ -141,7 +150,7 @@ class File
     
     // 压缩
     public static function zip_encode($path,$name,$save_path=__DIR__,$is_dir=false){
-        // dump($name);
+        // dump($path);
         $zip=new \ZipArchive();
         $result = $zip->open($save_path . '/' . $name . ".zip", \ZipArchive::CREATE);
         if($result !== true){

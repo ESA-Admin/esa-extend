@@ -54,12 +54,13 @@ class Version{ // class start
      * @param  String  $version2  版本2
      * @return Int                -1:1<2, 0:相等, 1:1>2
      */
-    public static function compare($version1, $version2){
+    public static function compare($version1, $version2, $num = false){
         if(self::check($version1) && self::check($version2)){
             $version1_code = self::version_to_integer($version1);
             $version2_code = self::version_to_integer($version2);
-
-            if($version1_code>$version2_code){
+            if($num){
+                return $version1_code-$version2_code;
+            }elseif($version1_code>$version2_code){
                 return 1;
             }elseif($version1_code<$version2_code){
                 return -1;
@@ -68,6 +69,22 @@ class Version{ // class start
             }
         }else{
             throw new ErrorException('version1 or version2 Validate Error');
+        }
+    }
+    
+    /**
+     * 版本处理类
+     * @param String $version 版本号
+     * @param Int 需要处理的数
+     * @return String $version 返回处理之后的版本
+     */
+    public static function update($version,$num){
+        if(self::check($version)){
+            $v_i = self::version_to_integer($version);
+            $res = $v_i + $num;
+            return self::integer_to_version($res);
+        }else{
+            throw new ErrorException('version Validate Error');
         }
     }
 
