@@ -4,7 +4,7 @@ namespace esa;
 use esa\Http;
 
 /**
- * esa 服务器通讯类
+ * esa 云服务通讯类
  */
 
 class Server
