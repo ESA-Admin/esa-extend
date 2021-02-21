@@ -98,7 +98,7 @@ class File
         // cove 是否符覆盖目标文件
         $source_arr = File::get_file($source);
         foreach($source_arr as $v){
-            $path_info = pathinfo($trage.$v);
+            $path_info = pathinfo($target.$v);
             if(!is_dir($path_info['dirname'])){
                 @mkdir($path_info['dirname']);
             }
