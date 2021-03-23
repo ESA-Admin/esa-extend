@@ -65,6 +65,11 @@ class Server
                 $this->seterr("出现史诗级错误！");
                 return false;
             }
+            if(intval($res['code']) === 110){
+                @file_put_contents($this->_token_file,"");
+                @file_put_contents($this->_user_file,"");
+                return $res;
+            }
             if(intval($res['code']) === 101001 || intval($res['code']) === 101004 || intval($res['code']) === 10004){
                 $user = $this->post("user/token",$this->_user_info,$deep++);
                 if(!empty($user['token'])){
