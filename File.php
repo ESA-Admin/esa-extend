@@ -3,7 +3,7 @@
 namespace esa;
 
 /**
- * sql语句生成类
+ * 文件处理类
  */
 class File
 {
