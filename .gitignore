@@ -1,3 +1,2 @@
-/.git/*
-/cache/*
+cache/*
 !/cache/index.html

@@ -35,7 +35,7 @@ class Server
     
     public function url($url = "user/token")
     {
-        return $this->server_url . $url . ".html?__TOKEN__=".$this->_token;
+        return $this->server_url . $url . ".html";
     }
     
     public function seterr($error="",$errcode = 110){
@@ -59,7 +59,7 @@ class Server
     
     public function post($url_base="user/token",$data=[],$deep=0){
         $url = $this->url($url_base);
-        $res = @json_decode(Http::post($url,$data,[CURLOPT_REFERER=>$_SERVER['HTTP_HOST']]),true);
+        $res = @json_decode(Http::post($url,$data,[CURLOPT_REFERER=>$_SERVER['HTTP_HOST'],CURLOPT_HTTPHEADER=>['Token:'.$this->_token]]),true);
         if(is_array($res)){
             if($deep > 1){
                 $this->seterr("出现史诗级错误！");
@@ -74,8 +74,12 @@ class Server
                 $user = $this->post("user/token",$this->_user_info,$deep++);
                 if(!empty($user['token'])){
                     $this->_token = $user['token'];
-                    @file_put_contents($this->_token_file,$user['token']);
-                    return $this->post($url_base,$data);
+                    if(file_put_contents($this->_token_file,$user['token'])){
+                        return $this->post($url_base,$data,$deep++);
+                    }else{
+                        $this->seterr("请检查extend/esa/cache目录权限是否可写",110);
+                        return false;
+                    }
                 }else{
                     $this->seterr($user['msg'],$user['code']);
                     return false;

@@ -100,7 +100,7 @@ class File
         foreach($source_arr as $v){
             $path_info = pathinfo($target.$v);
             if(!is_dir($path_info['dirname'])){
-                @mkdir($path_info['dirname']);
+                @mkdir($path_info['dirname'], 0755, true);
             }
             if(!$cove && is_file($target.$v)){
                 continue;
