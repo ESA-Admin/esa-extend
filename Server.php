@@ -57,9 +57,9 @@ class Server
         return ["msg"=>$this->_error,"code"=>$this->_errcode];
     }
     
-    public function post($url_base="user/token",$data=[],$deep=0){
+    public function post($url_base="user/token",$data=[],$times=60,$deep=0){
         $url = $this->url($url_base);
-        $res = @json_decode(Http::post($url,$data,[CURLOPT_REFERER=>$_SERVER['HTTP_HOST'],CURLOPT_HTTPHEADER=>['Token:'.$this->_token]]),true);
+        $res = @json_decode(Http::post($url,$data,[CURLOPT_REFERER=>$_SERVER['HTTP_HOST'],CURLOPT_HTTPHEADER=>['Token:'.$this->_token],CURLOPT_TIMEOUT=>$times]),true);
         if(is_array($res)){
             if($deep > 1){
                 $this->seterr("出现史诗级错误！");
@@ -75,7 +75,7 @@ class Server
                 if(!empty($user['token'])){
                     $this->_token = $user['token'];
                     if(file_put_contents($this->_token_file,$user['token'])){
-                        return $this->post($url_base,$data,$deep++);
+                        return $this->post($url_base,$data,$times,$deep++);
                     }else{
                         $this->seterr("请检查extend/esa/cache目录权限是否可写",110);
                         return false;
