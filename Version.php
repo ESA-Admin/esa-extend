@@ -84,7 +84,7 @@ class Version{ // class start
             $res = $v_i + $num;
             return self::integer_to_version($res);
         }else{
-            throw new \think\ErrorException('version Validate Error');
+            throw new ErrorException('version Validate Error');
         }
     }
 
